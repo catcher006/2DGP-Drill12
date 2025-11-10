@@ -33,8 +33,9 @@ def init():
     boy = Boy()
     game_world.add_object(boy, 1)
 
-    zombie = Zombie()
-    game_world.add_object(zombie, 1)
+    zombies = [Zombie() for _ in range(10)]
+    for zombie in zombies:
+        game_world.add_object(zombie, 1)
 
 
 
