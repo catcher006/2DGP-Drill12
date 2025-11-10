@@ -42,7 +42,7 @@ class Zombie:
         # 여기를 채우시오.
         self.t = 0.0
         self.sx, self.sy = self.x, self.y
-
+        self.distance = math.sqrt((self.arrow.x - self.x) ** 2 + (self.arrow.y - self.y) ** 2)
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
@@ -53,7 +53,7 @@ class Zombie:
 
         # 여기를 채우시오.
         if self.t < 1.0:
-            self.t += 0.01
+            self.t += game_framework.frame_time * RUN_SPEED_PPS / self.distance
             self.x = (1 - self.t) * self.sx + self.t * self.arrow.x
             self.y = (1 - self.t) * self.sy + self.t * self.arrow.y
         else:
@@ -61,6 +61,7 @@ class Zombie:
             self.t = 0.0
             self.arrow.reset_position() # 새로운 목표 지점 설정
             self.sx, self.sy = self.x, self.y # 시작 지점 갱신
+            self.distance = math.sqrt((self.arrow.x - self.x) ** 2 + (self.arrow.y - self.y) ** 2)
 
 
 
