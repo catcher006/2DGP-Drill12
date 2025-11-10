@@ -40,6 +40,8 @@ class Zombie:
         game_world.add_object(self.arrow, 2)
 
         # 여기를 채우시오.
+        self.t = 0.0
+        self.sx, self.sy = self.x, self.y
 
 
     def get_bb(self):
@@ -50,6 +52,15 @@ class Zombie:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
         # 여기를 채우시오.
+        if self.t < 1.0:
+            self.t += 0.01
+            self.x = (1 - self.t) * self.sx + self.t * self.arrow.x
+            self.y = (1 - self.t) * self.sy + self.t * self.arrow.y
+        else:
+            self.x, self.y = self.arrow.x, self.arrow.y # 도착점에 장확히 맞추기
+            self.t = 0.0
+            self.arrow.reset_position() # 새로운 목표 지점 설정
+            self.sx, self.sy = self.x, self.y # 시작 지점 갱신
 
 
 

@@ -53,14 +53,16 @@ def draw_point(p):
 def draw_line(p1, p2):
     draw_big_point(p1)
     draw_big_point(p2)
+
     x1, y1 = p1
     x2, y2 = p2
 
-    a = (y2 - y1) / (x2 - x1) # 기울기
-    b = y1 - a * x1          # y절편
-
-    for x in range(x1, x2 + 1, 20):
-        y = a * x + b
+    # t = 0.0 ~ 1.0
+    for i in range(0, 101):
+        t = i / 100 # 0.0 ~ 1.0
+        # p1과 p2를 (1-t) : t 비율로 나눈 점 좌표 계산
+        x = (1 - t) * x1 + t * x2
+        y = (1 - t) * y1 + t * y2
         draw_point((x, y))
 
     draw_point(p2)
@@ -69,7 +71,7 @@ def draw_line(p1, p2):
 prepare_turtle_canvas()
 
 p1 = -100, 100
-p2 = 300, 150
+p2 = -100, 150
 draw_line(p1, p2)
 
 turtle.done()
