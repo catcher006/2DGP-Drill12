@@ -3,7 +3,7 @@ import random
 from pico2d import *
 import game_framework
 
-
+import common
 import game_world
 from boy import Boy
 from ball import Ball
@@ -19,17 +19,16 @@ def handle_events():
             game_framework.quit()
 
         else:
-            boy.handle_event(event)
+            common.boy.handle_event(event)
 
 
 def init():
     ground = Ground()
     game_world.add_object(ground, 0)
 
-    global boy
-    boy = Boy()
-    game_world.add_object(boy, 2)
-    game_world.add_collision_pair('boy:ball', boy, None)
+    common.boy = Boy()
+    game_world.add_object(common.boy, 2)
+    game_world.add_collision_pair('boy:ball', common.boy, None)
 
     zombie = Zombie(300, 300)
     game_world.add_object(zombie, 2)
