@@ -44,7 +44,7 @@ class Zombie:
         self.speed = 0.0
         self.frame = random.randint(0, 9)
         self.state = 'Idle'
-        self.ball_count = 0
+        self.ball_count = 100
 
 
         self.tx, self.ty = 1000, 1000
@@ -110,6 +110,14 @@ class Zombie:
         self.y += distance * math.sin(self.dir)
 
 
+    def run_little_to(self, tx, ty):
+        # frame_time을 이용하여 이동거리 계산
+        distance = RUN_SPEED_PPS * game_framework.frame_time
+        self.dir = math.atan2(ty - self.y, tx - self.x) # 각도 구하기
+        self.x -= distance * math.cos(self.dir)
+        self.y -= distance * math.sin(self.dir)
+
+
 
     def move_to(self, r=0.5):
         self.state = 'Walk' # 디버그 출력
@@ -119,6 +127,14 @@ class Zombie:
         else:
             return BehaviorTree.RUNNING
 
+
+    def run_to(self, r=0.5):
+        self.state = 'Walk'  # 디버그 출력
+        self.run_little_to(self.tx, self.ty)  # 목적지로 조금 이동
+        if self.distance_less_than(self.tx, self.ty, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
 
 
     def set_random_location(self):
@@ -160,8 +176,13 @@ class Zombie:
         patrol = Sequence('순찰', a2, a1)
 
         c1 = Condition('소년이 근처에 있는가?', self.if_boy_nearby, 7)
+        c2 = Condition('좀비가 소년보다 공이 많거나 같은가?', self.ball_count_compare)
+
         a3 = Action('소년에게 접근', self.move_to_boy)
-        chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, a3)
+        a4 = Action('소년에게서 도망', self.run_to)
+
+        compare_ball = Selector('공 개수 비교', c2, a4)
+        chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, compare_ball, a3)
 
         root = chase_or_patrol = Selector('추적 아니면 순찰', chase_boy_if_nearby, patrol)
 
