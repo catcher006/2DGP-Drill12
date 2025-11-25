@@ -147,29 +147,21 @@ class Zombie:
         return BehaviorTree.SUCCESS
 
 
+    def ball_count_compare(self): # boy가 크면 FAIL, 아니면 SUCCESS
+        if common.boy.ball_count <= self.ball_count:
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
+
     def build_behavior_tree(self):
-        # 목표 지점(1000, 1000)을 설정하는 액션 노드를 생성
-        a1 = Action('set target location', self.set_target_location, 1000, 1000)
-        a2 = Action('move to target', self.move_to, 0.5)
-
-        move_to_target_sequence = Sequence('Move To Target', a1, a2)
-
-        a3 = Action('set random location', self.set_random_location)
-
-        wander = Sequence('Wander', a3, a2)
+        a1 = Action('move to target', self.move_to, 0.5)
+        a2 = Action('순찰 위치 가져오기', self.get_patrol_location)
+        patrol = Sequence('순찰', a2, a1)
 
         c1 = Condition('소년이 근처에 있는가?', self.if_boy_nearby, 7)
-        a4 = Action('소년에게 접근', self.move_to_boy)
-        chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, a4)
-
-        chase_or_wander = Selector('소년이 가까이 있으면 추적 아니면 배회', chase_boy_if_nearby, wander)
-
-        a5 = Action('순찰 위치 가져오기', self.get_patrol_location)
-        patrol = Sequence('순찰', a5, a2)
-
-        c1 = Condition('소년이 근처에 있는가?', self.if_boy_nearby, 7)
-        a4 = Action('소년에게 접근', self.move_to_boy)
-        chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, a4)
+        a3 = Action('소년에게 접근', self.move_to_boy)
+        chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, a3)
 
         root = chase_or_patrol = Selector('추적 아니면 순찰', chase_boy_if_nearby, patrol)
 
