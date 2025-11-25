@@ -44,7 +44,7 @@ class Zombie:
         self.speed = 0.0
         self.frame = random.randint(0, 9)
         self.state = 'Idle'
-        self.ball_count = 100
+        self.ball_count = 0
 
 
         self.tx, self.ty = 1000, 1000
@@ -110,13 +110,18 @@ class Zombie:
         self.y += distance * math.sin(self.dir)
 
 
-    def run_little_to(self, tx, ty):
+    def run_little_to(self, tx=None, ty=None):
         # frame_time을 이용하여 이동거리 계산
         distance = RUN_SPEED_PPS * game_framework.frame_time
-        self.dir = math.atan2(ty - self.y, tx - self.x) # 각도 구하기
-        self.x -= distance * math.cos(self.dir)
-        self.y -= distance * math.sin(self.dir)
+        self.dir = math.atan2(ty - self.y, tx - self.x)  # 각도 구하기
+        theta = math.atan2(0 - math.sin(self.dir), 0 - math.cos(self.dir))
 
+        if theta < -math.pi:
+            self.x += distance * math.cos(self.dir)
+            self.y += distance * math.sin(self.dir)
+        else:
+            self.x -= distance * math.cos(self.dir)
+            self.y -= distance * math.sin(self.dir)
 
 
     def move_to(self, r=0.5):
@@ -129,8 +134,8 @@ class Zombie:
 
 
     def run_to(self, r=0.5):
-        self.state = 'Walk'  # 디버그 출력
-        self.run_little_to(self.tx, self.ty)  # 목적지로 조금 이동
+        self.state = 'Walk'
+        self.run_little_to(self.tx, self.ty)
         if self.distance_less_than(self.tx, self.ty, self.x, self.y, r):
             return BehaviorTree.SUCCESS
         else:
