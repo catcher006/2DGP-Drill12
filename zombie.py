@@ -2,6 +2,8 @@ from pico2d import *
 
 import random
 import math
+
+import common
 import game_framework
 import game_world
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
@@ -67,6 +69,7 @@ class Zombie:
             Zombie.images[self.state][int(self.frame)].draw(self.x, self.y, 100, 100)
         self.font.draw(self.x - 10, self.y + 60, f'{self.ball_count}', (0, 0, 255))
         Zombie.marker_image.draw(self.tx+25, self.ty-25)
+        draw_circle(self.x, self.y, int(7.0 * PIXEL_PER_METER), 255, 255, 255)
 
 
 
@@ -120,14 +123,19 @@ class Zombie:
         return BehaviorTree.SUCCESS
 
 
-    def is_boy_nearby(self, distance):
-        # 여기를 채우시오.
-        pass
+    def if_boy_nearby(self, distance):
+        if self.distance_less_than(common.boy.x, common.boy.x, self.x, self.y, distance):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
 
 
     def move_to_boy(self, r=0.5):
-        # 여기를 채우시오.
-        pass
+        self.move_little_to(common.boy.x, common.boy.y)
+        if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
 
 
     def get_patrol_location(self):
@@ -145,5 +153,9 @@ class Zombie:
         a3 = Action('set random location', self.set_random_location)
 
         root = wander = Sequence('Wander', a3, a2)
+
+        c1 = Condition('소년이 근처에 있는가?', self.if_boy_nearby, 7)
+        a4 = Action('소년에게 접근', self.move_to_boy)
+        root = chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, a4)
 
         self.bt = BehaviorTree(root)
