@@ -52,6 +52,9 @@ class Zombie:
 
         self.build_behavior_tree()
 
+        self.patrol_locations = [(43, 274), (1118, 274), (1050, 494), (575, 804), (235,991), (575, 804), (1050, 494), (1118, 274)]
+        self.loc_no = 0
+
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
@@ -124,7 +127,7 @@ class Zombie:
 
 
     def if_boy_nearby(self, distance):
-        if self.distance_less_than(common.boy.x, common.boy.x, self.x, self.y, distance):
+        if self.distance_less_than(common.boy.x, common.boy.y, self.x, self.y, distance):
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
@@ -139,8 +142,9 @@ class Zombie:
 
 
     def get_patrol_location(self):
-        # 여기를 채우시오.
-        pass
+        self.tx, self.ty = self.patrol_locations[self.loc_no]
+        self.loc_no = (self.loc_no + 1) % len(self.patrol_locations)
+        return BehaviorTree.SUCCESS
 
 
     def build_behavior_tree(self):
@@ -158,6 +162,9 @@ class Zombie:
         a4 = Action('소년에게 접근', self.move_to_boy)
         chase_boy_if_nearby = Sequence('소년이 가까이 있으면 소년을 추적', c1, a4)
 
-        root = chase_or_wander = Selector('소년이 가까이 있으면 추적 아니면 배회', chase_boy_if_nearby, wander)
+        chase_or_wander = Selector('소년이 가까이 있으면 추적 아니면 배회', chase_boy_if_nearby, wander)
+
+        a5 = Action('순찰 위치 가져오기', self.get_patrol_location)
+        root = patrol = Sequence('순찰', a5, a2)
 
         self.bt = BehaviorTree(root)
